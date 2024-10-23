@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- OpenGraph Tags for Social Sharing -->
+    <meta property="og:title" content="JamJam - The Official Game" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jamjam.tech" />
+    <meta property="og:description" content="Play JamJam, a fun game inspired by Lilypad Network! Join the challenge with friends." />
+    <meta property="og:site_name" content="JamJam Game" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card Tags for Social Sharing -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="JamJam - The Official Game" />
+    <meta name="twitter:description" content="Join the fun and play JamJam, a collaborative game powered by the Lilypad Network." />
+    <meta name="twitter:url" content="https://jamjam.tech" />
+
+    <title>JamJam - The Official Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Ensure the entire body and html take up full height */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Use flexbox to structure the layout */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Main content should take up all available space, pushing the footer to the bottom */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Vertically center the content */
+            align-items: center; /* Horizontally center the content */
+        }
+
+        /* Footer styling to stay at the bottom */
+        footer {
+            flex-shrink: 0;
+        }
+
+        /* Optional: Set a minimum height for the game section */
+        #game-section {
+            min-height: 400px; /* Adjust based on your design */
+        }
+    </style>
+</head>
+<body class="bg-green-50 text-gray-800">
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="text-4xl lg:text-5xl font-bold text-green-700 my-8">JamJam - The Official Game</h1>
+        <h2 id="username-display" class="text-2xl text-gray-700 mb-4">Playing as {username}</h2>
+
+        <div class="flex flex-col lg:flex-row justify-center items-start w-full lg:w-2/3 space-x-6">
+            
+            <!-- Left Column: Game Status and How It Works -->
+            <div class="flex flex-col space-y-4 w-full lg:w-1/4">
+                <div id="status-panel" class="p-4 bg-white shadow-md rounded-lg text-center">
+                    <h2 id="status-message" class="text-2xl font-semibold">Waiting for more players to join...</h2>
+                </div>
+                <div id="rules" class="p-4 bg-white shadow-md rounded-lg">
+                    <h2 class="text-2xl font-semibold mb-4">How It Works</h2>
+                    <ul class="list-disc list-inside text-lg space-y-2">
+                        <li><span class="game-term gm">GM</span> beats <span class="game-term gn">GN</span>.</li>
+                        <li><span class="game-term gn">GN</span> beats <span class="game-term gd">GD</span>.</li>
+                        <li><span class="game-term gd">GD</span> beats <span class="game-term gm">GM</span>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Game Board -->
+            <div id="game-section" class="w-full lg:w-2/4 p-4 bg-green-100 shadow-md rounded-lg">
+                <div id="game" class="hidden">
+                    <h2 class="text-xl lg:text-2xl mb-4">Make your choice!</h2>
+                    <div class="flex justify-center space-x-4">
+                        <button id="gm" class="choice-button bg-green-500 hover:bg-green-600">GM</button>
+                        <button id="gn" class="choice-button bg-blue-500 hover:bg-blue-600">GN</button>
+                        <button id="gd" class="choice-button bg-yellow-500 hover:bg-yellow-600">GD</button>
+                    </div>
+                    <div id="result" class="text-xl lg:text-2xl text-green-700 mt-4"></div>
+                </div>
+
+                <!-- Players List -->
+                <div id="players" class="mt-8">
+                    <h2 class="text-xl lg:text-2xl mb-4">Players in the game:</h2>
+                    <ul id="playerList" class="list-none space-y-2"></ul>
+                </div>
+            </div>
+
+            <!-- Leaderboard Section -->
+            <div id="leaderboard-section" class="w-full lg:w-1/4 p-4 bg-white shadow-md rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4">Leaderboard</h2>
+                <ul id="leaderboard" class="list-none space-y-2"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="p-4 bg-white shadow-md text-center w-full">
+        <p class="text-sm text-gray-600">Made using Lilypad Network</p>
+    </footer>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const statusMessageDiv = document.getElementById('status-message');
+    const playerList = document.getElementById('playerList');
+    const leaderboardList = document.getElementById('leaderboard');
+    const gameDiv = document.getElementById('game');
+    const resultDiv = document.getElementById('result');
+    const usernameDisplay = document.getElementById('username-display');
+
+    // Handle receiving the updated player list
+    socket.on('players', (updatedPlayers) => {
+        playerList.innerHTML = ''; // Clear the list
+        for (const [id, player] of Object.entries(updatedPlayers)) {
+            const li = document.createElement('li');
+            li.textContent = `${player.name}`;
+            playerList.appendChild(li);
+
+            // Update the username on the page for the current user
+            if (id === socket.id) {
+                usernameDisplay.textContent = `Playing as ${player.name}`;
+            }
+        }
+    });
+
+    // Handle game started message
+    socket.on('gameStarted', () => {
+        statusMessageDiv.textContent = "Game started!";
+        gameDiv.classList.remove('hidden');
+        resultDiv.textContent = ''; // Reset the result message
+        clearSelections(); // Clear selections when a new game starts
+    });
+
+    // Handle countdown
+    socket.on('countdown', (seconds) => {
+        statusMessageDiv.textContent = `Countdown: ${seconds}s`;
+    });
+
+    // Handle game over and display the winner
+    socket.on('gameOver', ({ winnerName }) => {
+        statusMessageDiv.textContent = `${winnerName} wins!`;
+
+        // Show start new game button in the status box
+        const newGameButton = document.createElement('button');
+        newGameButton.textContent = 'Start New Game';
+        newGameButton.classList.add('bg-green-500', 'text-white', 'px-4', 'py-2', 'rounded-lg', 'mt-2');
+        newGameButton.onclick = () => socket.emit('startNewGame');
+        statusMessageDiv.appendChild(newGameButton);
+    });
+
+    // Disable all buttons after the game ends
+    function disableGameButtons() {
+        document.querySelectorAll('.choice-button').forEach(button => {
+            button.disabled = true;
+            button.classList.add('cursor-not-allowed', 'opacity-50'); // Add styling for disabled state
+        });
+    }
+
+    // Enable all buttons when a new game starts
+    function enableGameButtons() {
+        document.querySelectorAll('.choice-button').forEach(button => {
+            button.disabled = false;
+            button.classList.remove('cursor-not-allowed', 'opacity-50');
+        });
+    }
+
+    // Handle new game started event
+    socket.on('newGameStarted', () => {
+        enableGameButtons(); // Re-enable buttons for all players
+        statusMessageDiv.textContent = 'New game started! Make your choice!';
+        resultDiv.textContent = ''; // Clear previous result
+    });
+
+    // Handle game over and display the winner
+    socket.on('gameOver', ({ winnerName }) => {
+        statusMessageDiv.textContent = `${winnerName} wins!`;
+
+        // Disable the game buttons after the game ends
+        disableGameButtons();
+
+        // Show start new game button in the status box
+        const newGameButton = document.createElement('button');
+        newGameButton.textContent = 'Start New Game';
+        newGameButton.classList.add('bg-green-500', 'text-white', 'px-4', 'py-2', 'rounded-lg', 'mt-2');
+        newGameButton.onclick = () => {
+            socket.emit('startNewGame');
+            enableGameButtons(); // Re-enable buttons when new game starts
+        };
+        statusMessageDiv.appendChild(newGameButton);
+    });
+
+
+    // Handle new game round
+    socket.on('resetGame', () => {
+        statusMessageDiv.textContent = 'Waiting for more players to join...';
+        gameDiv.classList.add('hidden');
+    });
+
+    // Handle leaderboard updates
+    socket.on('leaderboard', (rows) => {
+        leaderboardList.innerHTML = ''; // Clear leaderboard
+        rows.forEach(row => {
+            const li = document.createElement('li');
+            li.textContent = `${row.player_name}: ${row.wins} wins`;
+            leaderboardList.appendChild(li);
+        });
+    });
+
+    // Player selection logic (send selection to the server)
+    document.getElementById('gm').addEventListener('click', () => {
+        socket.emit('makeChoice', 'GM');
+        highlightSelection('GM');
+    });
+    document.getElementById('gn').addEventListener('click', () => {
+        socket.emit('makeChoice', 'GN');
+        highlightSelection('GN');
+    });
+    document.getElementById('gd').addEventListener('click', () => {
+        socket.emit('makeChoice', 'GD');
+        highlightSelection('GD');
+    });
+
+    // Highlight the selected option
+    function highlightSelection(choice) {
+        document.querySelectorAll('.choice-button').forEach(button => {
+            button.classList.remove('selected');
+        });
+        const selectedButton = document.getElementById(choice.toLowerCase());
+        selectedButton.classList.add('selected');
+    }
+
+    // Clear player selections when a new game starts
+    function clearSelections() {
+        document.querySelectorAll('.choice-button').forEach(button => {
+            button.classList.remove('selected');
+        });
+    }
+</script>
+</body>
+</html>

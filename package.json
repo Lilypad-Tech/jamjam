@@ -1,0 +1,26 @@
+{
+  "name": "jamjam-game",
+  "version": "1.0.0",
+  "description": "JamJam - A multiplayer elimination game inspired by Rock, Paper, Scissors using GM, GN, and GD.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "run": "npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gm",
+    "gn",
+    "gd",
+    "multiplayer",
+    "gm gn the game",
+    "lilypad-network"
+  ],
+  "author": "Lilypad_Tech",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.21.1",
+    "socket.io": "^4.8.0",
+    "sqlite3": "^5.1.7"
+  }
+}

@@ -1,0 +1,54 @@
+/* Custom styles for the Lilypad Network theme */
+.choice-button {
+    padding: 15px 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.choice-button.selected {
+    border: 3px solid #000; /* Highlight the selected button */
+    background-color: #444;
+}
+
+#playerList li, #leaderboard li {
+    background-color: #e6ffe6;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+body {
+    background-image: url('/lilypad-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* Game Terms Styling */
+.game-term {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.gm {
+    background-color: #4CAF50; /* Green for GM */
+    color: white;
+}
+
+.gn {
+    background-color: #2196F3; /* Blue for GN */
+    color: white;
+}
+
+.gd {
+    background-color: #FFC107; /* Yellow for GD */
+    color: black;
+}
+
+/* Added Padding between sections */
+.space-x-6 > * + * {
+    margin-left: 1.5rem;
+}
