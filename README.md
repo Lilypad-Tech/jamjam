@@ -2,6 +2,8 @@
 
 JamJam is a multiplayer web-based game, inspired by Rock-Paper-Scissors, where players compete using "GM" (Good Morning), "GN" (Good Night), and "GD" (Good Day) in a fun, turn-based environment. This project uses Node.js and Socket.IO to handle real-time multiplayer functionality, with a SQLite database for tracking player scores and leaderboard entries.
 
+You can see it live by checking out [jamjam.tech](https://jamjam.tech). 
+
 ## Features
 - Turn-based multiplayer gameplay
 - SQLite-based leaderboard
@@ -21,7 +23,7 @@ To run this project locally or on a server, you'll need the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/jamjam.git
+git clone https://github.com/lilypad_tech/jamjam.git
 cd jamjam
 ```
 
